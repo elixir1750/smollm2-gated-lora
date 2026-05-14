@@ -48,7 +48,7 @@ def main() -> None:
         batch_size=eval_config.per_device_eval_batch_size,
         shuffle=False,
         num_workers=eval_config.num_workers,
-        collate_fn=MTPCollator(model.tokenizer),
+        collate_fn=MTPCollator(model.tokenizer, pad_to_length=data_config.block_size),
     )
 
     token_meter = TokenAccMeter(max_phrase_len=max_phrase_len)

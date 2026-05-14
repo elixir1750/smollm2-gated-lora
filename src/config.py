@@ -19,6 +19,7 @@ class TrainConfig:
     block_size: int = 256
     max_phrase_len: int = 4
     min_prefix_len: int = 8
+    max_prefix_len: Optional[int] = None
     max_train_samples: Optional[int] = None
     max_eval_samples: Optional[int] = None
 
@@ -33,6 +34,7 @@ class TrainConfig:
     warmup_steps: int = 50
     per_device_train_batch_size: int = 4
     per_device_eval_batch_size: int = 4
+    gradient_accumulation_steps: int = 1
     grad_clip_norm: float = 1.0
     alpha: str = "1.0,0.7,0.5,0.3"
     seed: int = 42
@@ -41,6 +43,7 @@ class TrainConfig:
     num_workers: int = 0
     device: Optional[str] = None
     dtype: str = "float32"
+    pad_to_length: Optional[int] = 256
 
 
 @dataclass

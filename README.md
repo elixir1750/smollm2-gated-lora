@@ -63,6 +63,59 @@ python -m src.train \
 
 Training writes `train_log.jsonl` with `loss_mtp`, per-step losses, and learning rate.
 
+## Colab CUDA Training
+
+Mac/MPS can run smoke tests, but this gated-LoRA MTP setup still needs full transformer forward/backward through the frozen backbone, so longer runs are much happier on CUDA. A practical first CUDA run is:
+
+```bash
+bash scripts/colab_train_10m.sh
+```
+
+这个脚本会跑：
+
+- `block_size=256`
+- global batch size `8`
+- `5000` optimizer steps
+- 约 `10M` training tokens
+- `top_k=4`, `beam_size=16` 的 before/after observe
+
+在 Colab 里可以这样启动：
+
+```bash
+!git clone <your-repo-url>
+%cd smollm2-mtp-phrase-proposer
+!pip install -r requirements.txt
+!bash scripts/colab_train_10m.sh
+```
+
+如果你是手动上传本地目录到 Colab 或 Google Drive，把 `%cd` 切到仓库目录后执行后两行即可。
+
+训练完成后重点看：
+
+- `outputs/colab_10m/before_after_observe.json`
+- `after.mtp_step_{1..4}_acc@1/@4`
+- `after.phrase_len_4_recall@16`
+- `after.any_len_prefix_4_recall@beam`
+- `delta_after_minus_before`
+
+如果 Colab 显存不够，优先降低这些参数：
+
+```bash
+OUTPUT_DIR=outputs/colab_light python -m src.train \
+  --dataset_name smollm2 \
+  --dataset_config cosmopedia-v2 \
+  --block_size 192 \
+  --pad_to_length 192 \
+  --max_train_samples 8000 \
+  --num_train_steps 3000 \
+  --per_device_train_batch_size 4 \
+  --gradient_accumulation_steps 2 \
+  --lora_rank 4 \
+  --dtype float16 \
+  --device cuda \
+  --output_dir outputs/colab_light
+```
+
 ## Eval
 
 ```bash

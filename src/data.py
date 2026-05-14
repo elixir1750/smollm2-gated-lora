@@ -219,6 +219,7 @@ class MTPBlockDataset(TorchDataset):
         self.tokenizer = tokenizer
         self.max_phrase_len = config.max_phrase_len
         self.min_prefix_len = config.min_prefix_len
+        self.max_prefix_len = config.max_prefix_len
         self.training = training
         self.seed = config.seed
         self.mtp_token_ids = [
@@ -239,6 +240,10 @@ class MTPBlockDataset(TorchDataset):
     def __getitem__(self, idx: int) -> dict[str, Any]:
         block = self.blocks[self.valid_indices[idx]]["input_ids"]
         max_prefix = len(block) - self.max_phrase_len
+        if self.max_prefix_len is not None:
+            max_prefix = min(max_prefix, self.max_prefix_len)
+        if max_prefix < self.min_prefix_len:
+            raise ValueError("max_prefix_len must be >= min_prefix_len.")
         if self.training:
             prefix_len = random.randint(self.min_prefix_len, max_prefix)
         else:
@@ -257,11 +262,14 @@ class MTPBlockDataset(TorchDataset):
 
 
 class MTPCollator:
-    def __init__(self, tokenizer: Any) -> None:
+    def __init__(self, tokenizer: Any, pad_to_length: Optional[int] = None) -> None:
         self.pad_token_id = tokenizer.pad_token_id
+        self.pad_to_length = pad_to_length
 
     def __call__(self, examples: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
         max_len = max(len(ex["input_ids"]) for ex in examples)
+        if self.pad_to_length is not None:
+            max_len = max(max_len, self.pad_to_length)
         input_ids = []
         attention_mask = []
         for ex in examples:

@@ -192,7 +192,7 @@ def main() -> None:
         batch_size=observe_config.per_device_eval_batch_size,
         shuffle=False,
         num_workers=observe_config.num_workers,
-        collate_fn=MTPCollator(baseline_model.tokenizer),
+        collate_fn=MTPCollator(baseline_model.tokenizer, pad_to_length=data_config.block_size),
     )
     before_metrics, before_examples = evaluate_observation_model(
         model=baseline_model,
