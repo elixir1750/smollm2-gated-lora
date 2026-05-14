@@ -1,0 +1,15 @@
+[project]
+name = "smollm2-mtp-phrase-proposer"
+version = "0.1.0"
+description = "Minimal gated-LoRA mask-token MTP phrase proposer experiment for SmolLM2."
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.1",
+  "transformers>=4.40",
+  "datasets>=2.18",
+  "tqdm>=4.66",
+  "numpy>=1.24",
+]
+
+[tool.setuptools]
+packages = ["src"]
