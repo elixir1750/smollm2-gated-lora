@@ -60,9 +60,11 @@ class GatedLoRALinear(nn.Module):
         if gate is None:
             return base
 
-        delta = self.lora_B(self.lora_A(self.dropout(x))) * self.scaling
+        lora_input = self.dropout(x).to(dtype=self.lora_A.weight.dtype)
+        delta = self.lora_B(self.lora_A(lora_input)) * self.scaling
+        delta = delta.to(dtype=base.dtype)
         if x.dim() == 3 and gate.dim() == 3 and gate.shape[:2] == x.shape[:2]:
-            return base + gate.to(device=x.device, dtype=delta.dtype) * delta
+            return base + gate.to(device=x.device, dtype=base.dtype) * delta
         return base
 
 
