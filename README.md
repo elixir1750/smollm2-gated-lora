@@ -98,6 +98,32 @@ bash scripts/colab_train_10m.sh
 - `after.any_len_prefix_4_recall@beam`
 - `delta_after_minus_before`
 
+Medium run:
+
+```bash
+bash scripts/colab_train_medium_41m.sh
+```
+
+默认配置：
+
+- `block_size=512`
+- global batch size `8`
+- `10000` optimizer steps
+- processed tokens 约 `512 * 8 * 10000 = 40.96M`
+- `top_k=4`, `beam_size=16`
+
+脚本默认使用 micro-batch `4` 和 gradient accumulation `2`，避免 Colab T4/L4 显存不够。如果显存充足，可以这样跑：
+
+```bash
+MICRO_BATCH_SIZE=8 GRADIENT_ACCUMULATION_STEPS=1 bash scripts/colab_train_medium_41m.sh
+```
+
+输出在：
+
+```text
+outputs/colab_medium_41m/before_after_observe.json
+```
+
 如果 Colab 显存不够，优先降低这些参数：
 
 ```bash
